@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto QR Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script> <!-- Corrected CDN -->
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; background-color: gray;}
+        #reader { width: 300px; margin: auto; }
+        #result { font-size: 18px; margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h2>Auto QR Code Scanner</h2>
+    <div id="reader"></div>
+    <p>Scanned Result: <span id="result">Waiting...</span></p>
+
+    <script>
+        async function requestCameraPermission() {
+            try {
+                // Request camera permission explicitly
+                await navigator.mediaDevices.getUserMedia({ video: true });
+                console.log("Camera access granted.");
+                startQRScanner();
+            } catch (error) {
+                alert("Camera access denied. Please enable it in browser settings.");
+            }
+        }
+
+        function startQRScanner() {
+            function onScanSuccess(decodedText, decodedResult) {
+                document.getElementById("result").innerText = decodedText;
+                
+                // Auto redirect if QR contains a URL
+                if (decodedText.startsWith("http")) {
+                    window.location.href = decodedText;
+                } else {
+                    alert("Scanned: " + decodedText);
+                }
+            }
+
+            let html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(
+                { facingMode: "environment" },  // Use rear camera for better scanning
+                { fps: 10, qrbox: 250 },
+                onScanSuccess
+            );
+        }
+
+        document.addEventListener("DOMContentLoaded", requestCameraPermission);
+    </script>
+
+</body>
+</html>
